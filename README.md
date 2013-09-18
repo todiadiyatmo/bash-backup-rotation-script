@@ -1,4 +1,4 @@
-##[Tonjoo](http://tonjoo.com "Tonjoo") - Bash Backup Rotation Script
+##[Tonjoo](http://tonjoo.com/backup-rotation-script/ "Tonjoo") - Bash Backup Rotation Script
 
 ###Description
 This script allow you to create a rotation backup for your files and mysql database.  
@@ -74,6 +74,6 @@ The backup retention default day is :
 
 		sh backup_rotation.sh
 
-##Contribute
+##Contribute and Contact
 
-Everybody is welcome to fork and contribute. If you need to pull something just post it on the message board.
+Everybody is welcome to fork and contribute. If you need to pull something just post it on the message board. 
