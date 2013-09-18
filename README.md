@@ -28,7 +28,7 @@ The backup retention default day is :
 	
 		vi backup_rotation.sh	 
 
-3. Edit the configuration file. MYSQL configuration, BACKUP\_DIR, TARGET\_DIR must be filled. 
+3. Edit the configuration file. MYSQL configuration, `BACKUP\_DIR`, `TARGET\_DIR` must be filled. 
 
 		# Edit this configuration !! 
 		
@@ -70,9 +70,25 @@ The backup retention default day is :
 
 		chmod +x backup_rotation.sh
 
-5. Run the script 
+5. Test the script 
 
 		sh backup_rotation.sh
+
+6. If the script running correctly the file will be available on `TARGET\_DIR`. Try to extract the file and check the content
+
+		tar -xzfv [filename].tgz
+
+7. To make the backup running daily, put it on the crontab
+	
+		#run crontab
+		crontab -e
+
+		#put this line on crontab 
+		0 0 * * * sh [path to your backup_rotation.sh ]
+
+8. If crontab not available, install `cronie` package first (CentOS)
+
+		yum install cronie
 
 ##Contribute and Contact
 
