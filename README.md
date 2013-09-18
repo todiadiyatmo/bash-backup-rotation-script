@@ -13,9 +13,11 @@ Each type of backup will have a backup retention(copy). The default retention fo
 
 The backup retention default day is :
 
-- Daily backup : 7 Day ( 7 daily backup )
-- Weekly backup : 30 Day ( ~4 weekly backup )
-- Monthly backup : 90 Day ( ~3 Monthly backup )
+*   Daily backup : 3 Day ( 3 daily backup )
+*   Weekly backup : 14 Day ( ~2 weekly backup )
+*   Monthly backup : 30 Day ( ~1 Monthly backup )
+
+Please consider your space when creating many retention
 
 ##Usage Instruction
 

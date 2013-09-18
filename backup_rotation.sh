@@ -16,13 +16,13 @@ TARGET_DIR=/folder_to_backup
 MAIL="your_email@email.com"
 
 # Number of day the daily backup keep
-RETENTION_DAY=7
+RETENTION_DAY=3
 
 # Number of day the weekly backup keep
-RETENTION_WEEK=30
+RETENTION_WEEK=14
 
 # Number of day the monthly backup keep
-RETENTION_MONTH=90
+RETENTION_MONTH=30
 
 #Backup every first day of the month (day of month)
 MONTH_DAY=1
@@ -101,7 +101,7 @@ else
     # On any regular day do
     destination=backup.daily/
   	# monthly - keep for RETENTION_MONTH
-	find $BACKUP_DIR/backup.daily/ -maxdepth 1 -mtime +$RETENTION_MONTH -type d -exec rm -rv {} \;
+	  find $BACKUP_DIR/backup.daily/ -maxdepth 1 -mtime +$RETENTION_MONTH -type d -exec rm -rv {} \;
   fi
 fi
 
