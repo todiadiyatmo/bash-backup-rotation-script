@@ -24,6 +24,11 @@ RETENTION_WEEK=30
 # Number of day the monthly backup keep
 RETENTION_MONTH=90
 
+#Backup every first day of the month (day of month)
+MONTH_DAY=1
+
+#Backup every sixth day of the week (day of week)
+WEEK_DAY=6
 
 # MYSQL Configuration
 # Enter all credential within the ' ' single quote !
@@ -32,6 +37,7 @@ USER='db_user'
 PASSWORD='db_password'
 DATABASE='db_database'
 HOST='127.0.0.1'
+
 
 # End configuration
 
@@ -81,13 +87,13 @@ fi
 # appropriate destination folder
 
 # On first month day do
-if [ "$month_day" -eq 1 ] ; then
+if [ "$month_day" -eq $MONTH_DAY ] ; then
   	destination=backup.monthly/
   	# daily - keep for RETENTION_DAY
 	find $BACKUP_DIR/backup.monthly/ -maxdepth 1 -mtime +$RETENTION_DAY -type d -exec rm -rv {} \;
 else
   # On saturdays do
-  if [ "$week_day" -eq 6 ] ; then
+  if [ "$week_day" -eq $WEEK_DAY ] ; then
     destination=backup.weekly/
 	# weekly - keep for RETENTION_WEEK
 	find $BACKUP_DIR/backup.weekly/ -maxdepth 1 -mtime +$RETENTION_WEEK -type d -exec rm -rv {} \;
