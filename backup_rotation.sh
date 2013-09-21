@@ -6,7 +6,7 @@
 # --------------------------
 # Edit this configuration !! 
 # --------------------------
-  
+
 # -------------------
 # Backup Destination option, please read the README to find the possible value
 # --------------------
@@ -19,19 +19,19 @@ FTP_BACKUP_OPTION=7
 TARGET_DIR=/target_directory
 
 # The backup directory , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
-BACKUP_DIR=/your_backup_direcory
+BACKUP_DIR=/copy_target_to_backup_directory
 
 # Admin email
 MAIL="your_email@email.com"
 
 # Number of day the daily backup keep
-RETENTION_DAY=3
+RETENTION_DAY=2
 
 # Number of day the weekly backup keep
 RETENTION_WEEK=14
 
 # Number of day the monthly backup keep
-RETENTION_MONTH=30
+RETENTION_MONTH=60
 
 #Monthly date backup option (day of month)
 MONTHLY_BACKUP_DATE=1
@@ -45,28 +45,28 @@ WEEKLY_BACKUP_DAY=6
 # -----------------
 
 #This is the FTP servers host or IP address. 
-FTP_HOST='FTP HOST' 
+FTP_HOST='ftp.yourhost.com' 
 
 #FTP PORT
 FTP_PORT=21
 
 #This is the FTP user that has access to the server. 
-FTP_USER='FTP USER'           
+FTP_USER='user'           
 
 #This is the password for the FTP user. 
-FTP_PASSWORD='FTP_PASSWORD'          
+FTP_PASSWORD='password'          
 
 #The backup directory on remote machine, DO NOT END THE DIRECTORY WITH BACKSLASH ! 
-FTP_TARGET_DIR='/remote_path'
+FTP_TARGET_DIR='ftp_target_dir'
 
 # --------------------------------------------------
 # MYSQL Configuration
 # Enter all data within the ' ' single quote !
 # --------------------------------------------------
 
-DB_USER='DB USER'
-DB_PASSWORD='DB PASSWORD'
-DB_DATABASE='DB DATABASE'
+DB_USER='db_user'
+DB_PASSWORD='db_pass'
+DB_DATABASE='db_database'
 DB_HOST='127.0.0.1'
 
 # -----------------
@@ -82,28 +82,40 @@ month_day=`date +"%d"`
 week_day=`date +"%u"`
 
 # On first month day do
-if [ "$month_day" -eq $MONTHLY_BACKUP_DATE ] ; then
-    BACKUP_TYPE='_monthly'
-    # daily - keep for RETENTION_DAY
-    find $BACKUP_DIR/ -maxdepth 1 -mtime +$RETENTION_DAY -type d -exec rm -rv {} \;
+  if [ "$month_day" -eq $MONTHLY_BACKUP_DATE ] ; then
+    BACKUP_TYPE='-monthly'
+    RETENTION_DAY_LOOKUP=$RETENTION_MONTH
+    
     COMPARATOR=4
-else
+  else
   # On saturdays do
-  BACKUP_TYPE='_weekly'
-  if [ "$week_day" -eq $WEEKLY_BACKUP_DAY ] ; then
+    if [ "$week_day" -eq $WEEKLY_BACKUP_DAY ] ; then
     # weekly - keep for RETENTION_WEEK
-    find $BACKUP_DIR/ -maxdepth 1 -mtime +$RETENTION_WEEK -type d -exec rm -rv {} \;
-  
+    BACKUP_TYPE='-weekly'
+    RETENTION_DAY_LOOKUP=$RETENTION_WEEK
+
     COMPARATOR=2
   else
     # On any regular day do
-    BACKUP_TYPE='_daily'
-    # monthly - keep for RETENTION_MONTH
-    find $BACKUP_DIR/ -maxdepth 1 -mtime +$RETENTION_MONTH -type d -exec rm -rv {} \;
-   
-    COMPARATOR=1
+      BACKUP_TYPE='-daily'
+      RETENTION_DAY_LOOKUP=$RETENTION_DAY
+
+      COMPARATOR=1
+    fi
   fi
-fi
+
+CURRENT_DIR=${PWD}
+
+#create cache to delete
+cd $BACKUP_DIR/.ftp_cache/ 
+find -maxdepth 1 -name *$BACKUP_TYPE* -mtime +$RETENTION_DAY_LOOKUP >>  $BACKUP_DIR/.ftp_cache/search_file.tmp
+cd $CURRENT_DIR
+
+#delete old files
+find $BACKUP_DIR/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name *$BACKUP_TYPE* -exec rm -rv {} \;
+find $BACKUP_DIR/.ftp_cache/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name *$BACKUP_TYPE* -exec rm -rv {} \;
+
+
 
 PERFORM_LOCAL_BACKUP=0
 PERFORM_FTP_BACKUP=0
@@ -116,9 +128,6 @@ fi
 if [[ $(( $COMPARATOR & $FTP_BACKUP_OPTION )) == $COMPARATOR ]]; then
   PERFORM_FTP_BACKUP=1 
 fi
-
-
-CURRENT_DIR=${PWD}
 
 mkdir $BACKUP_DIR
 mkdir $BACKUP_DIR/backup.incoming
@@ -142,24 +151,36 @@ cd $CURRENT_DIR
 
 # Optional check if source files exist. Email if failed.
 if [ ! -f $BACKUP_DIR/backup.incoming/$backup_filename ]; then
-	mail $MAIL -s "[backup script] Daily backup failed! Please check for missing files."
+  mail $MAIL -s "[backup script] Daily backup failed! Please check for missing files."
 fi
 
 # FTP
 if [ $PERFORM_FTP_BACKUP -eq 1 ]; then
-ftp -n -v $FTP_HOST $FTP_PORT << END_OF_SESSION
-user $FTP_USER $FTP_PASSWORD
-mkdir $FTP_TARGET_DIR
-cd $FTP_TARGET_DIR
-binary
-put $BACKUP_DIR/backup.incoming/$backup_filename $FTP_TARGET_DIR/$backup_filename
-bye
-END_OF_SESSION
+
+  #create cache copy to detect the remote file
+  mkdir $BACKUP_DIR/.ftp_cache
+  touch $BACKUP_DIR/.ftp_cache/$backup_filename 
+
+  echo "user $FTP_USER $FTP_PASSWORD" >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
+  echo "mkdir $FTP_TARGET_DIR" >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
+  echo "cd $FTP_TARGET_DIR" >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
+  echo "binary" >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
+  echo "put $BACKUP_DIR/backup.incoming/$backup_filename $FTP_TARGET_DIR/$backup_filename" >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
+  for f in $(<$BACKUP_DIR/.ftp_cache/search_file.tmp)
+  do
+   echo "delete ${f/.\//}" >>  $BACKUP_DIR/backup.incoming/ftp_command.tmp
+  done
+  echo "bye" >>  $BACKUP_DIR/backup.incoming/ftp_command.tmp 
+
+  ftp -n -v $FTP_HOST < $BACKUP_DIR/backup.incoming/ftp_command.tmp
+
+  #remove ftp_command
+  rm $BACKUP_DIR/backup.incoming/ftp_command.tmp 
 fi
 
 #Perform local backup
 if [ $PERFORM_LOCAL_BACKUP -eq 1 ]; then
- 
+
   rm -rf $FTP_TARGET_DIR 
 
   # Move the files
@@ -169,3 +190,6 @@ fi
 
 # Cleanup
 rm -rf $BACKUP_DIR/backup.incoming/
+
+# Remove cache tmp file
+rm $BACKUP_DIR/.ftp_cache/search_file.tmp
