@@ -6,7 +6,7 @@
 # --------------------------
 # Edit this configuration !! 
 # --------------------------
-
+  
 # -------------------
 # Backup Destination option, please read the README to find the possible value
 # --------------------
