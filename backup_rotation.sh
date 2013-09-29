@@ -108,12 +108,12 @@ CURRENT_DIR=${PWD}
 
 #create cache to delete
 cd $BACKUP_DIR/.ftp_cache/ 
-find -maxdepth 1 -name '*$BACKUP_TYPE*' -mtime +$RETENTION_DAY_LOOKUP >>  $BACKUP_DIR/.ftp_cache/search_file.tmp
+find -maxdepth 1 -name "'*$BACKUP_TYPE*'" -mtime +$RETENTION_DAY_LOOKUP >>  $BACKUP_DIR/.ftp_cache/search_file.tmp
 cd $CURRENT_DIR
 
 #delete old files
-find $BACKUP_DIR/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name '*$BACKUP_TYPE*' -exec rm -rv {} \;
-find $BACKUP_DIR/.ftp_cache/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name '*$BACKUP_TYPE*' -exec rm -rv {} \;
+find $BACKUP_DIR/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name "'*$BACKUP_TYPE*'" -exec rm -rv {} \;
+find $BACKUP_DIR/.ftp_cache/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name "'*$BACKUP_TYPE*'" -exec rm -rv {} \;
 
 
 
