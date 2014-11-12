@@ -99,9 +99,9 @@ To customize the `backup type` you must alter the `LOCAL_BACKUP_OPTION` and `FTP
 
 The configuration value of `LOCAL_BACKUP_OPTION` and `FTP_BACKUP_OPTION` can be view on the table below
 
-![Backup type configuration](http://tonjoo.com/wp-content/uploads/2013/09/tuts.png)
+![Backup type configuration](http://todiadiyatmo.com/wp-content/uploads//2014/11/Selection_105.png)
 
-For example, if you want to do daily on local and week on FTP you must fill both options with this value
+For example, if you want to do daily on local and weekly on FTP you must fill both options with this value
 
 	LOCAL_BACKUP_OPTION=1
 		
