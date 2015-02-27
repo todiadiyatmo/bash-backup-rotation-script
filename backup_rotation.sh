@@ -123,7 +123,7 @@ do
       exit 1
       ;;
 
-    --bolth)
+    --both)
       LOCAL_BACKUP_OPTION=1
       FTP_BACKUP_OPTION=1
       ;;
