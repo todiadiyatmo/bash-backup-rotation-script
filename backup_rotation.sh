@@ -5,21 +5,25 @@
 
 # --------------------------
 # Edit this configuration !! 
+# THESE WILL BE THE SETTINGS
+# IF YOU DO NOT SECIFY THEM
+# WITH SWITCHES.
 # --------------------------
 
 # -------------------
 # Backup Destination option, please read the README to find the possible value
 # --------------------
 
-LOCAL_BACKUP_OPTION=7
+# A Temporary Location to work with files , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
 
-FTP_BACKUP_OPTION=7
+TMP_LOCATION=/tmp
 
-# The directory to be backup , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
-TARGET_DIR=/target_directory
+# The directory to be backed up , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
 
-# The backup directory , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
-BACKUP_DIR=/copy_target_to_backup_directory
+BACKUP_DIR=/target_directory
+
+# The directory where the backups are sent , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
+TARGET_DIR=/copy_target_to_backup_directory
 
 # Admin email
 MAIL="your_email@email.com"
@@ -69,9 +73,161 @@ DB_PASSWORD='db_pass'
 DB_DATABASE='db_database'
 DB_HOST='127.0.0.1'
 
+# --------------------------------------------------
+# Default Backup Options
+# Here you can set what you want to be backed up by
+# Default. 0 = no ; 1 = yes
+# If you use the switches and not this config file
+# Thes settings will be toggled automatically.
+# --------------------------------------------------
+
+LOCAL_BACKUP_OPTION=0
+FTP_BACKUP_OPTION=0
+
+#----------------------------
+
+SQL_BACKUP_OPTION=7
+FILES_BACKUP_OPTION=6
+
 # -----------------
 # End configuration
 # -----------------
+
+#------------------
+#Begin Switches
+#------------------
+
+while [ "$#" -gt 0 ];
+do
+  case "$1" in
+    -h|--help)
+      echo "-h|--help was triggered"
+      exit 1
+      ;;
+
+    --bolth)
+      LOCAL_BACKUP_OPTION=1
+      FTP_BACKUP_OPTION=1
+      ;;
+
+    --ftp)
+      FTP_BACKUP_OPTION=1
+      if [ "$#" -gt 1 ]; then
+        if [ ! "$2" = \-* ]; then
+          if [[ ! "$3" = \-* && ! "$4" = \-* && ! "$5" = \-* && ! "$6" = \-* && ! "$3" == "" && ! "$4" == "" && ! "$5" = "" && ! "$6" = "" ]]; then
+            FTP_HOST=$2
+            FTP_PORT=$3
+            FTP_USER=$4
+            FTP_PASSWORD=$5
+            FTP_TARGET_DIR=$6
+            shift 5
+          else
+            echo "Error in --ftp syntax. Script failed."
+            exit 1
+          fi
+        fi
+      fi
+      ;;
+
+    --sql)
+      if [[ "$#" -gt 1 && ! "$2" = \-* ]]; then
+        SQL_BACKUP_OPTION=$2
+        if [[ ! "$3" = \-* && ! "$4" = \-* && ! "$5" = \-* && ! "$6" = \-* && ! "$3" == "" && ! "$4" == "" && ! "$5" = "" && ! "$6" = "" ]]; then
+            DB_HOST=$3
+            DB_USER=$4
+            DB_PASSWORD=$5
+            DB_DATABASE=$6
+            shift 5
+        else
+            echo "Error in --sql syntax. Script failed."
+            exit 1
+        fi
+      fi
+      ;;
+
+    --now)
+      RUN_NOW=1      
+      ;;
+
+    -bd|--backupdir)
+      if [[ "$#" -gt 1 && ! "$2" = \-* ]]; then
+        if [[ ! "$3" = \-* && ! "$3" == "" ]]; then
+          FILES_BACKUP_OPTION=$2
+          BACKUP_DIR=${3%/}
+          shift 2
+        else
+          echo "Error in -bd|--backupdir syntax. Script failed."
+          exit 1
+        fi  
+      fi
+      ;;
+
+
+    -td|--targetdir)
+      if [[ "$#" -gt 1 && ! "$2" = \-* ]]; then
+       TARGET_DIR=${2%/}
+       LOCAL_BACKUP_OPTION=1
+       shift 
+      else
+        echo "Error in -td|--targetdir syntax. Script failed."
+        exit 1
+      fi
+      ;;
+
+    -e|--email)
+      if [[ "$#" -gt 1 && ! "$2" = \-* ]]; then
+      MAIL=$2
+      shift
+      else
+        echo "Error in -e|--email syntax. Script failed."
+        exit 1
+      fi  
+      ;;
+
+    -r|--retention)
+      if [[ "$#" -gt 1 && ! "$2" = \-* && ! "$3" = \-* && ! "$4" = \-* && ! "$3" == "" && ! "$4" == "" ]]; then
+        RETENTION_DAY=$2
+        RETENTION_WEEK=$3
+        RETENTION_MONTH=$4
+        shift 3
+      else
+        echo "Error in -r|--retention syntax. Script failed."
+        exit 1
+      fi  
+      ;;
+
+    -d|--dates)
+      if [[ "$#" -gt 1 && ! "$2" = \-* && ! "$3" = \-* && ! "$3" == "" ]]; then
+        MONTHLY_BACKUP_DATE=$2
+        WEEKLY_BACKUP_DAY=$3
+        shift 2
+      else
+        echo "Error in -d|--dates syntax. Script failed."
+        exit 1
+      fi  
+      ;;
+
+    --)              # End of all options.
+        shift
+        break
+        ;;
+
+    -?*)
+        printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+        ;;
+
+    '') # Empty case: If no more options then break out of the loop.
+        break
+        ;;
+
+    *)  # Anything unrecognized     
+        echo "The value "$1" was not expected. Script failed."
+        exit 1
+        ;;
+  esac
+
+  shift
+done
 
 # STARTING BACKUP SCRIPT
 
@@ -107,18 +263,21 @@ week_day=`date +"%u"`
 CURRENT_DIR=${PWD}
 
 #create cache to delete
-cd $BACKUP_DIR/.ftp_cache/ 
-find -maxdepth 1 -name "*$BACKUP_TYPE*" -mtime +$RETENTION_DAY_LOOKUP >>  $BACKUP_DIR/.ftp_cache/search_file.tmp
+mkdir $TMP_DIR/.retention_cache/ 
+cd $TMP_DIR/.retention_cache/ 
+find -maxdepth 1 -name "*$BACKUP_TYPE*" -mtime +$RETENTION_DAY_LOOKUP >>  $TMP_DIR/.retention_cache/search_file.tmp
 cd $CURRENT_DIR
 
 #delete old files
-find $BACKUP_DIR/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name "*$BACKUP_TYPE*" -exec rm -rv {} \;
-find $BACKUP_DIR/.ftp_cache/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name "*$BACKUP_TYPE*" -exec rm -rv {} \;
+find $TMP_DIR/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name "*$BACKUP_TYPE*" -exec rm -rv {} \;
+find $TMP_DIR/.ftp_cache/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name "*$BACKUP_TYPE*" -exec rm -rv {} \;
 
 
 
 PERFORM_LOCAL_BACKUP=0
 PERFORM_FTP_BACKUP=0
+PERFORM_SQL_BACKUP=0
+PERFORM_FILES_BACKUP=0
 
 # Check wheter to do backup
 if [[ $(( $COMPARATOR & $LOCAL_BACKUP_OPTION )) == $COMPARATOR ]]; then
@@ -129,67 +288,99 @@ if [[ $(( $COMPARATOR & $FTP_BACKUP_OPTION )) == $COMPARATOR ]]; then
   PERFORM_FTP_BACKUP=1 
 fi
 
-mkdir $BACKUP_DIR
-mkdir $BACKUP_DIR/backup.incoming
+if [[ $(( $COMPARATOR & $SQL_BACKUP_OPTION )) == $COMPARATOR ]]; then
+  PERFORM_SQL_BACKUP=1 
+fi
 
-cd $BACKUP_DIR/backup.incoming
+if [[ $(( $COMPARATOR & $FILES_BACKUP_OPTION )) == $COMPARATOR ]]; then
+  PERFORM_FILES_BACKUP=1 
+fi
+
+if [ $RUN_NOW -eq 1 ]; then
+PERFORM_LOCAL_BACKUP=$LOCAL_BACKUP_OPTION
+PERFORM_FTP_BACKUP=$FTP_BACKUP_OPTION
+PERFORM_SQL_BACKUP=$SQL_BACKUP_OPTION
+PERFORM_FILES_BACKUP=$FILES_BACKUP_OPTION
+fi
+
+mkdir $TMP_DIR
+mkdir $TMP_DIR/backup.incoming
+
+cd $TMP_DIR/backup.incoming
 # Destination file names
-backup_filename=`date +"%d-%m-%Y"`$BACKUP_TYPE
-backup_filename=$backup_filename'.tgz'
+base_backup_filename=`date +"%d-%m-%Y"`$BACKUP_TYPE
+backup_filename=$base_backup_filename'.tgz'
 
-# Dump MySQL tables
-mysqldump -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_DATABASE > $BACKUP_DIR/backup.incoming/mysql_dump.sql
+if [ ! $PERFORM_SQL_BACKUP -eq 0 ]; then
 
-# Compress tables and files
-cd $TARGET_DIR
-tar -czf $BACKUP_DIR/backup.incoming/$backup_filename -C $BACKUP_DIR/backup.incoming/ mysql_dump.sql $TARGET_DIR
+  # Destination file names
+  backup_filename=$base_backup_filename'.sql.tgz'
 
-#clean sql file
-rm $BACKUP_DIR/backup.incoming/mysql_dump.sql
+  # Dump MySQL tables
+  mysqldump -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_DATABASE > $TMP_DIR/backup.incoming/mysql_dump.sql
+
+  # Compress tables and files
+  cd $TARGET_DIR
+  tar -cjf $TMP_DIR/backup.incoming/$backup_filename $TMP_DIR/backup.incoming/mysql_dump.sql
+
+  #clean sql file
+  rm $TMP_DIR/backup.incoming/mysql_dump.sql
+fi
 
 cd $CURRENT_DIR
 
 # Optional check if source files exist. Email if failed.
-if [ ! -f $BACKUP_DIR/backup.incoming/$backup_filename ]; then
+if [ ! -f $TMP_DIR/backup.incoming/$backup_filename ]; then
   mail $MAIL -s "[backup script] Daily backup failed! Please check for missing files."
 fi
 
-# FTP
-if [ $PERFORM_FTP_BACKUP -eq 1 ]; then
+#Preform Files Backup
+if [ ! $PERFORM_FILES_BACKUP -eq 0 ]; then
+  backup_filename=$base_backup_filename'.data.tgz'
 
-  #create cache copy to detect the remote file
-  mkdir $BACKUP_DIR/.ftp_cache
-  touch $BACKUP_DIR/.ftp_cache/$backup_filename 
+  # Compress files
+  cd $TARGET_DIR
+  tar -cjf $TMP_DIR/backup.incoming/$backup_filename $BACKUP_DIR
 
-  echo "user $FTP_USER $FTP_PASSWORD" >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
-  echo "mkdir $FTP_TARGET_DIR" >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
-  echo "cd $FTP_TARGET_DIR" >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
-  echo "binary" >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
-  echo "put $BACKUP_DIR/backup.incoming/$backup_filename ." >> $BACKUP_DIR/backup.incoming/ftp_command.tmp
-  for f in $(<$BACKUP_DIR/.ftp_cache/search_file.tmp)
-  do
-   echo "delete ${f/.\//}" >>  $BACKUP_DIR/backup.incoming/ftp_command.tmp
-  done
-  echo "bye" >>  $BACKUP_DIR/backup.incoming/ftp_command.tmp 
-
-  ftp -n -v $FTP_HOST $FTP_PORT < $BACKUP_DIR/backup.incoming/ftp_command.tmp
-
-  #remove ftp_command
-  rm $BACKUP_DIR/backup.incoming/ftp_command.tmp 
 fi
 
-#Perform local backup
-if [ $PERFORM_LOCAL_BACKUP -eq 1 ]; then
+# FTP
+if [ ! $PERFORM_FTP_BACKUP -eq 0 ]; then
 
-  rm -rf $FTP_TARGET_DIR 
+  #create cache copy to detect the remote file
+  mkdir $TMP_DIR/.ftp_cache
+  touch $TMP_DIR/.ftp_cache/$backup_filename 
+
+  echo "user $FTP_USER $FTP_PASSWORD" >> $TMP_DIR/backup.incoming/ftp_command.tmp
+  echo "mkdir $FTP_TARGET_DIR" >> $TMP_DIR/backup.incoming/ftp_command.tmp
+  echo "cd $FTP_TARGET_DIR" >> $TMP_DIR/backup.incoming/ftp_command.tmp
+  echo "binary" >> $TMP_DIR/backup.incoming/ftp_command.tmp
+  echo "put $TMP_DIR/backup.incoming/$backup_filename ." >> $TMP_DIR/backup.incoming/ftp_command.tmp
+  for f in $(<$TMP_DIR/.ftp_cache/search_file.tmp)
+  do
+   echo "delete ${f/.\//}" >>  $TMP_DIR/backup.incoming/ftp_command.tmp
+  done
+  echo "bye" >>  $TMP_DIR/backup.incoming/ftp_command.tmp 
+
+  ftp -n -v $FTP_HOST $FTP_PORT < $TMP_DIR/backup.incoming/ftp_command.tmp
+
+  #remove ftp_command
+  rm $TMP_DIR/backup.incoming/ftp_command.tmp 
+fi
+
+
+#Perform local backup
+if [ ! $PERFORM_LOCAL_BACKUP -eq 0 ]; then
+
+##############################  rm -rf $FTP_TARGET_DIR 
 
   # Move the files
   mkdir $BACKUP_DIR
-  mv -v $BACKUP_DIR/backup.incoming/* $BACKUP_DIR
+  mv -v $TMP_DIR/backup.incoming/* $TARGET_DIR
 fi
 
 # Cleanup
-rm -rf $BACKUP_DIR/backup.incoming/
+rm -rf $TMP_DIR/backup.incoming/
 
 # Remove cache tmp file
-rm $BACKUP_DIR/.ftp_cache/search_file.tmp
+rm -rf $TMP_DIR/.retention_cache/
