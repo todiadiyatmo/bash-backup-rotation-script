@@ -81,13 +81,31 @@ DB_HOST='127.0.0.1'
 # Thes settings will be toggled automatically.
 # --------------------------------------------------
 
+# 0 or 1
 LOCAL_BACKUP_OPTION=0
 FTP_BACKUP_OPTION=0
 
-#----------------------------
+#--------------------------------------
+# You may set when you want to schedule
+# a backup of the SQL databases or the 
+# physical files by setting the number 
+# between 1-7. The chart below will 
+# help you know which to pick.
+#----------------------------------#
+# Daily | Weekly | Monthly | Value #
+#-------|--------|---------|-------#
+#  Yes  |   No   |    No   |   1   #
+#  No   |   Yes  |    No   |   2   #
+#  Yes  |   Yes  |    No   |   3   #
+#  No   |   No   |   Yes   |   4   #
+#  Yes  |   No   |   Yes   |   5   #
+#  No   |   Yes  |   Yes   |   6   #
+#  Yes  |   Yes  |   Yes   |   7   #
+#----------------------------------#
 
-SQL_BACKUP_OPTION=7
-FILES_BACKUP_OPTION=6
+#Between 1-7
+SQL_BACKUP_OPTION=0
+FILES_BACKUP_OPTION=0
 
 # -----------------
 # End configuration
@@ -272,22 +290,13 @@ cd $CURRENT_DIR
 find $TMP_DIR/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name "*$BACKUP_TYPE*" -exec rm -rv {} \;
 find $TMP_DIR/.ftp_cache/ -maxdepth 1 -mtime +$RETENTION_DAY_LOOKUP -name "*$BACKUP_TYPE*" -exec rm -rv {} \;
 
-
-
-PERFORM_LOCAL_BACKUP=0
-PERFORM_FTP_BACKUP=0
 PERFORM_SQL_BACKUP=0
 PERFORM_FILES_BACKUP=0
 
 # Check wheter to do backup
-if [[ $(( $COMPARATOR & $LOCAL_BACKUP_OPTION )) == $COMPARATOR ]]; then
-  PERFORM_LOCAL_BACKUP=1 
-fi
-
-if [[ $(( $COMPARATOR & $FTP_BACKUP_OPTION )) == $COMPARATOR ]]; then
-  PERFORM_FTP_BACKUP=1 
-fi
-
+# This no longer is FTP or LOCAL
+# but rather if the backup of the
+# files should be SQL or FILES.
 if [[ $(( $COMPARATOR & $SQL_BACKUP_OPTION )) == $COMPARATOR ]]; then
   PERFORM_SQL_BACKUP=1 
 fi
@@ -296,6 +305,7 @@ if [[ $(( $COMPARATOR & $FILES_BACKUP_OPTION )) == $COMPARATOR ]]; then
   PERFORM_FILES_BACKUP=1 
 fi
 
+#This will force the backup to run immediately.
 if [ $RUN_NOW -eq 1 ]; then
 PERFORM_LOCAL_BACKUP=$LOCAL_BACKUP_OPTION
 PERFORM_FTP_BACKUP=$FTP_BACKUP_OPTION
