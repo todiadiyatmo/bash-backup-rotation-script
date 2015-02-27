@@ -149,17 +149,18 @@ do
 
     --sql)
       if [[ "$#" -gt 1 && ! "$2" = \-* ]]; then
+        SQL_BACKUP_OPTION=$2
         if [[ ! "$3" = \-* && ! "$4" = \-* && ! "$5" = \-* && ! "$6" = \-* && ! "$3" == "" && ! "$4" == "" && ! "$5" = "" && ! "$6" = "" ]]; then
-            SQL_BACKUP_OPTION=$2
             DB_HOST=$3
             DB_USER=$4
             DB_PASSWORD=$5
             DB_DATABASE=$6
-            shift 5
+            shift 4
         else
             echo "Error in --sql syntax. Script failed."
             exit 1
         fi
+        shift
       fi
       ;;
 
@@ -169,8 +170,8 @@ do
 
     -bd|--backupdir)
       if [[ "$#" -gt 1 && ! "$2" = \-* ]]; then
+        FILES_BACKUP_OPTION=$2
         if [[ ! "$3" = \-* && ! "$3" == "" ]]; then
-          FILES_BACKUP_OPTION=$2
           BACKUP_DIR=${3%/}
           shift 2
         else
