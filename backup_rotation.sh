@@ -149,8 +149,8 @@ do
 
     --sql)
       if [[ "$#" -gt 1 && ! "$2" = \-* ]]; then
-        SQL_BACKUP_OPTION=$2
         if [[ ! "$3" = \-* && ! "$4" = \-* && ! "$5" = \-* && ! "$6" = \-* && ! "$3" == "" && ! "$4" == "" && ! "$5" = "" && ! "$6" = "" ]]; then
+            SQL_BACKUP_OPTION=$2
             DB_HOST=$3
             DB_USER=$4
             DB_PASSWORD=$5
@@ -351,7 +351,6 @@ if [ ! $PERFORM_FILES_BACKUP -eq 0 ]; then
   # Compress files
   cd $TARGET_DIR
   tar -cjf $TMP_DIR/backup.incoming/$backup_filename $BACKUP_DIR
-
 fi
 
 # FTP
@@ -381,8 +380,6 @@ fi
 
 #Perform local backup
 if [ ! $PERFORM_LOCAL_BACKUP -eq 0 ]; then
-
-##############################  rm -rf $FTP_TARGET_DIR 
 
   # Move the files
   mkdir $BACKUP_DIR
