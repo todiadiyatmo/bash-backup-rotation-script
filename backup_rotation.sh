@@ -263,9 +263,9 @@ week_day=`date +"%u"`
 CURRENT_DIR=${PWD}
 
 #create cache to delete
-mkdir $TMP_DIR/.retention_cache/ 
-cd $TMP_DIR/.retention_cache/ 
-find -maxdepth 1 -name "*$BACKUP_TYPE*" -mtime +$RETENTION_DAY_LOOKUP >>  $TMP_DIR/.retention_cache/search_file.tmp
+mkdir $TMP_DIR/.ftp_cache/ 
+cd $TMP_DIR/.ftp_cache/ 
+find -maxdepth 1 -name "*$BACKUP_TYPE*" -mtime +$RETENTION_DAY_LOOKUP >>  $TMP_DIR/.ftp_cache/search_file.tmp
 cd $CURRENT_DIR
 
 #delete old files
@@ -383,4 +383,4 @@ fi
 rm -rf $TMP_DIR/backup.incoming/
 
 # Remove cache tmp file
-rm -rf $TMP_DIR/.retention_cache/
+rm -rf $TMP_DIR/.ftp_cache/
