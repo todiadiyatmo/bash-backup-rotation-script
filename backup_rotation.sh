@@ -6,7 +6,7 @@
 # --------------------------
 # Edit this configuration !! 
 # THESE WILL BE THE SETTINGS
-# IF YOU DO NOT SECIFY THEM
+# IF YOU DO NOT SPECIFY THEM
 # WITH SWITCHES.
 # --------------------------
 
