@@ -30,7 +30,6 @@ do
                         DIRECTORY=`echo $line | awk '{print $8}'`
                         DEST_BASE_DIR=`echo $line | awk '{print $9}'`
 
-                        echo "$HOST,$DATABASE,$USER,$PASSWORD,$DATABASE,$DEST_BASE_DIR"
                         DEST_DIR="$DEST_BASE_DIR/$HOST/$DATABASE"
 
                         if [ ! -e "$DIRECTORY" ]; then
