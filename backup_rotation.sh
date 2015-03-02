@@ -111,6 +111,7 @@ FILES_BACKUP_OPTION=0
 # End configuration
 # -----------------
 
+RUN_NOW=0
 #------------------
 #Begin Switches
 #------------------
@@ -355,7 +356,7 @@ if [ ! $PERFORM_FILES_BACKUP -eq 0 ]; then
 fi
 
 # FTP
-if [ ! $PERFORM_FTP_BACKUP -eq 0 ]; then
+if [ ! $FTP_BACKUP_OPTION -eq 0 ]; then
 
   #create cache copy to detect the remote file
   mkdir $TMP_DIR/.ftp_cache
@@ -380,7 +381,7 @@ fi
 
 
 #Perform local backup
-if [ ! $PERFORM_LOCAL_BACKUP -eq 0 ]; then
+if [ ! $LOCAL_BACKUP_OPTION -eq 0 ]; then
 
   # Move the files
   mkdir $BACKUP_DIR
