@@ -321,12 +321,12 @@ mkdir $TMP_DIR/backup.incoming
 cd $TMP_DIR/backup.incoming
 # Destination file names
 base_backup_filename=`date +"%d-%m-%Y"`$BACKUP_TYPE
-backup_filename=$base_backup_filename'.tgz'
+backup_filename=$base_backup_filename'.tar.gz'
 
 if [ ! $PERFORM_SQL_BACKUP -eq 0 ]; then
 
   # Destination file names
-  backup_filename=$base_backup_filename'.sql.tgz'
+  backup_filename=$base_backup_filename'.sql.tar.bz2'
 
   # Dump MySQL tables
   mysqldump -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_DATABASE > $TMP_DIR/backup.incoming/mysql_dump.sql
@@ -348,7 +348,7 @@ fi
 
 #Preform Files Backup
 if [ ! $PERFORM_FILES_BACKUP -eq 0 ]; then
-  backup_filename=$base_backup_filename'.data.tgz'
+  backup_filename=$base_backup_filename'.data.tar.bz2'
 
   # Compress files
   cd $TARGET_DIR
