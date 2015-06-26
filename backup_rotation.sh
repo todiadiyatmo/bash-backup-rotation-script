@@ -347,8 +347,9 @@ if [ ! $PERFORM_SQL_BACKUP -eq 0 ]; then
 
   echo "Compress sql backup.."
 
-  # Compress tables and files
-  tar -cjf $TMP_DIR/backup.incoming/$backup_filename $TMP_DIR/backup.incoming/mysql_dump.sql
+  cd $TMP_DIR/backup.incoming
+  tar -cjf $backup_filename mysql_dump.sql
+
 
   #clean sql file
   rm $TMP_DIR/backup.incoming/mysql_dump.sql
