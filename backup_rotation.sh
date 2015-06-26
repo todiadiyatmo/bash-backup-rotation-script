@@ -15,26 +15,30 @@
 # --------------------
 
 # A Temporary Location to work with files , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
-
-TMP_LOCATION=/tmp
+TMP_DIR=/tmp
 
 # The directory to be backed up , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
-
 BACKUP_DIR=/target_directory
 
 # The directory where the backups are sent , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
-TARGET_DIR=/copy_target_to_backup_directory
+TARGET_DIR=/the_folder_where_the_backup_are_sent
+
+# Hostname
+HOST="yourhost.com"
 
 # Admin email
-MAIL="your_email@email.com"
+MAIL="admin@yourhost.com"
 
-# Number of day the daily backup keep
+# Email Tag
+EMAIL_SUBJECT_TAG="[backup script@$HOST]"
+
+# Number of day the daily backup keep ( 2 day = 2 daily backup retention)
 RETENTION_DAY=2
 
-# Number of day the weekly backup keep
+# Number of day the weekly backup keep (14 day = 2 weekly backup retention )
 RETENTION_WEEK=14
 
-# Number of day the monthly backup keep
+# Number of day the monthly backup keep (30 day = 2 montly backup retention)
 RETENTION_MONTH=60
 
 #Monthly date backup option (day of month)
@@ -68,10 +72,15 @@ FTP_TARGET_DIR='ftp_target_dir'
 # Enter all data within the ' ' single quote !
 # --------------------------------------------------
 
-DB_USER='db_user'
-DB_PASSWORD='db_pass'
-DB_DATABASE='db_database'
+DB_USER='user'
+DB_PASSWORD='password'
+DB_DATABASE='database'
 DB_HOST='127.0.0.1'
+
+# -------------------------------------------------
+# Extra mysqldump option
+# -------------------------------------------------
+EXTRA_MYSQLDUMP_OPTIONS=''
 
 # --------------------------------------------------
 # Default Backup Options
@@ -82,7 +91,7 @@ DB_HOST='127.0.0.1'
 # --------------------------------------------------
 
 # 0 or 1
-LOCAL_BACKUP_OPTION=0
+LOCAL_BACKUP_OPTION=1
 FTP_BACKUP_OPTION=0
 
 #--------------------------------------
@@ -104,7 +113,7 @@ FTP_BACKUP_OPTION=0
 #----------------------------------#
 
 #Between 1-7
-SQL_BACKUP_OPTION=0
+SQL_BACKUP_OPTION=1
 FILES_BACKUP_OPTION=0
 
 # -----------------
@@ -315,7 +324,10 @@ PERFORM_SQL_BACKUP=$SQL_BACKUP_OPTION
 PERFORM_FILES_BACKUP=$FILES_BACKUP_OPTION
 fi
 
-mkdir $TMP_DIR
+echo "Creating backup dir.."
+
+#Remove previous backup
+rm -rf $TMP_DIR/backup.incoming
 mkdir $TMP_DIR/backup.incoming
 
 cd $TMP_DIR/backup.incoming
@@ -325,14 +337,17 @@ backup_filename=$base_backup_filename'.tar.gz'
 
 if [ ! $PERFORM_SQL_BACKUP -eq 0 ]; then
 
+  echo "Perform sql backup..."
+
   # Destination file names
   backup_filename=$base_backup_filename'.sql.tar.bz2'
 
   # Dump MySQL tables
-  mysqldump -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_DATABASE > $TMP_DIR/backup.incoming/mysql_dump.sql
+  mysqldump -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_DATABASE $EXTRA_MYSQLDUMP_OPTIONS > $TMP_DIR/backup.incoming/mysql_dump.sql
+
+  echo "Compress sql backup.."
 
   # Compress tables and files
-  cd $TARGET_DIR
   tar -cjf $TMP_DIR/backup.incoming/$backup_filename $TMP_DIR/backup.incoming/mysql_dump.sql
 
   #clean sql file
@@ -343,13 +358,13 @@ cd $CURRENT_DIR
 
 # Optional check if source files exist. Email if failed.
 if [ ! -f $TMP_DIR/backup.incoming/$backup_filename ]; then
-  mail $MAIL -s "[backup script] Daily backup failed! Please check for missing files."
+  echo "Daily backup failed! Please check for missing files." | mail -s "$EMAIL_SUBJECT_TAG Backup Failed" $MAIL
 fi
 
 #Preform Files Backup
 if [ ! $PERFORM_FILES_BACKUP -eq 0 ]; then
   backup_filename=$base_backup_filename'.data.tar.bz2'
-
+  echo "Perform file backup"
   # Compress files
   cd $TARGET_DIR
   tar -cjf $TMP_DIR/backup.incoming/$backup_filename $BACKUP_DIR
@@ -357,8 +372,9 @@ fi
 
 # FTP
 if [ ! $FTP_BACKUP_OPTION -eq 0 ]; then
-
+  echo "Copy backup to FTP.."
   #create cache copy to detect the remote file
+  #remove previous backup
   mkdir $TMP_DIR/.ftp_cache
   touch $TMP_DIR/.ftp_cache/$backup_filename 
 
@@ -375,21 +391,33 @@ if [ ! $FTP_BACKUP_OPTION -eq 0 ]; then
 
   ftp -n -v $FTP_HOST $FTP_PORT < $TMP_DIR/backup.incoming/ftp_command.tmp
 
-  #remove ftp_command
-  rm $TMP_DIR/backup.incoming/ftp_command.tmp 
+  
+  echo "FTP Backup finish" | mail -s "$EMAIL_SUBJECT_TAG FTP backup finished !" $MAIL
 fi
 
 
 #Perform local backup
 if [ ! $LOCAL_BACKUP_OPTION -eq 0 ]; then
 
+  if [ ! -d $TARGET_DIR ]; then
+    echo "Target directory : '$TARGET_DIR/' doesn't exist.."
+    echo "Target directory : '$TARGET_DIR/' doesn't exist.." | mail -s "$EMAIL_SUBJECT_TAG Failed !" $MAIL
+    echo "Exiting..."
+    exit
+  fi
+
+  echo "Copy backup to local dir.."
   # Move the files
-  mkdir $BACKUP_DIR
   mv -v $TMP_DIR/backup.incoming/* $TARGET_DIR
 fi
 
-# Cleanup
-rm -rf $TMP_DIR/backup.incoming/
+# Remove previous backup
+rm -rf $TMP_DIR/backup.incoming
 
-# Remove cache tmp file
-rm -rf $TMP_DIR/.ftp_cache/
+# Optional check if source files exist. Email if failed.
+if [ -f $TARGET_DIR/$backup_filename ]; then
+  echo "Sending mail"
+  echo "Local backup finish" | mail -s "$EMAIL_SUBJECT_TAG Finished !" $MAIL
+fi
+
+echo "Finish.."

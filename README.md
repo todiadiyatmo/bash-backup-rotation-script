@@ -74,7 +74,7 @@ Please consider your space when creating many retention.
 
 5. Test the script 
 
-		sh backup_rotation.sh
+		bash backup_rotation.sh
 
 6. If the script running correctly the file will be available on `TARGET\_DIR`. Try to extract the file and check the content
 
