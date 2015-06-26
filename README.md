@@ -86,7 +86,7 @@ Please consider your space when creating many retention.
 		crontab -e
 
 		#put this line on crontab 
-		0 0 * * * sh [path to your backup_rotation.sh ]
+		0 0 * * * bash [path to your backup_rotation.sh ]
 
 8. If crontab not available, install `cronie` package first (CentOS)
 
