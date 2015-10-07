@@ -1,15 +1,15 @@
 ###Bash Backup Rotation Script
 
 ###Description
-This script allow you to create a rotation backup for your files and mysql database. The backup target can be local or remote (FTP). 
+This script allows you to create a backup rotation for your files and mysql database. The backup target can be local or remote (FTP). 
 
-The script has 3 `backup type`
+The script has 3 backup types
 
 - Daily backup
 - Weekly backup (default : perform every sixth day of the week)
 - Monthly backup (default : perform every first day of the month)
 
-This script allows you to customize the where to backup of each `backup type`. For example you can choose to do daily and weekly backup on local machine and monthly backup on a FTP server.
+This script allows you to customize where to backup each `backup type`. For example you can choose to do daily and weekly backup on local machine and monthly backup on a FTP server.
 
 Each type of backup will have a backup retention(copy). The default retention for every type of backup can be configured. 
 
@@ -32,7 +32,7 @@ Please consider your storage size when chosing retention settings.
 
 1. Download the `backup_rotation.sh` script into your NIX server.
 
-		wget https://raw.githubusercontent.com/clickwir/bash-backup-rotation-script/master/backup_rotation.sh
+		wget https://raw.githubusercontent.com/todiadiyatmo/bash-backup-rotation-script/master/backup_rotation.sh
 
 2. Open the file using your favourite editor (ex :`nano` or `vim`)
 
