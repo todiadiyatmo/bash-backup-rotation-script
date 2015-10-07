@@ -1,4 +1,4 @@
-Bash Backup Rotation Script
+###Bash Backup Rotation Script
 
 ###Description
 This script allow you to create a rotation backup for your files and mysql database. The backup target can be local or remote (FTP). 
