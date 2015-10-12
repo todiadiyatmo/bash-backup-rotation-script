@@ -1,27 +1,27 @@
-##[Tonjoo](http://tonjoo.com/backup-rotation-script/ "Tonjoo") - Bash Backup Rotation Script
+###Bash Backup Rotation Script
 
 ###Description
-This script allow you to create a rotation backup for your files and mysql database. The backup target can be local or remote (FTP). 
+This script allows you to create a backup rotation for your files and mysql database. The backup target can be local or remote (FTP). 
 
-The script have 3 `backup type`
+The script has 3 backup types
 
 - Daily backup
 - Weekly backup (default : perform every sixth day of the week)
 - Monthly backup (default : perform every first day of the month)
 
-This script provide you customize the where to backup of each `backup type`. For example you can choose to do daily and weekly backup on local machine and monthly backup on FTP server.
+This script allows you to customize where to backup each `backup type`. For example you can choose to do daily and weekly backup on local machine and monthly backup on a FTP server.
 
 Each type of backup will have a backup retention(copy). The default retention for every type of backup can be configured. 
 
 The backup retention default day is :
 
-*   Daily backup : 3 Day ( 3 daily backup )
-*   Weekly backup : 14 Day ( ~2 weekly backup )
-*   Monthly backup : 30 Day ( ~1 Monthly backup )
+*   Daily backup : 5 Day ( 5 daily backups )
+*   Weekly backup : 14 Day ( ~2 weekly backups )
+*   Monthly backup : 30 Day ( ~1 Monthly backups )
 
-Please consider your space when creating many retention.
+Please consider your storage size when chosing retention settings.
 
-###Table of Content
+###Table of Contents
 1. [Usage Instruction](#usage_instruction)
 2. [Backup Type Configuration](#backup_type_configuration)
 3. [FTP Backup Configuration](#ftp_backup_configuration)
@@ -32,15 +32,15 @@ Please consider your space when creating many retention.
 
 1. Download the `backup_rotation.sh` script into your NIX server.
 
-		wget https://raw.github.com/todiadiyatmo/bash-backup-rotation-script/master/backup_rotation.sh
+		wget https://raw.githubusercontent.com/todiadiyatmo/bash-backup-rotation-script/master/backup_rotation.sh
 
-2. Open the file using your favourite editor (ex :`nano` or `vi`)
+2. Open the file using your favourite editor (ex :`nano` or `vim`)
 
 		nano backup_rotation.sh
 
 	or
 	
-		vi backup_rotation.sh	 
+		vim backup_rotation.sh
 
 3. Edit the configuration file. MYSQL configuration, for minimal `BACKUP_DIR`, `TARGET_DIR` must be filled. 
 
@@ -48,13 +48,13 @@ Please consider your space when creating many retention.
 		TARGET_DIR=/target_directory
 		
 		# The backup directory , DO NOT END THE DIRECTORY WITH BACKSLASH ! 
-		BACKUP_DIR=/your_backup_direcory
+		SOURCE_DIR=/your_backup_direcory
 		
 		# Admin email
 		MAIL="your_email@email.com"
 		
 		# Number of day the daily backup keep
-		RETENTION_DAY=3
+		RETENTION_DAY=5
 		
 		# Number of day the weekly backup keep
 		RETENTION_WEEK=14
@@ -72,25 +72,23 @@ Please consider your space when creating many retention.
 
 		chmod +x backup_rotation.sh
 
-5. Test the script 
+5. Test the script (sudo may be required)
 
 		bash backup_rotation.sh
 
-6. If the script running correctly the file will be available on `TARGET\_DIR`. Try to extract the file and check the content
+6. If the script runs correctly the file will be available in `TARGET_DIR`. Try to extract the file and check the contents
 
-		tar -xzfv [filename].tgz
+		tar -xJfv [filename].tar.xz
 
-7. To make the backup running daily, put it on the crontab
+7. To make the backup run daily, put it in a crontab
 	
-		#run crontab
 		crontab -e
 
-		#put this line on crontab 
-		0 0 * * * bash [path to your backup_rotation.sh ]
+		#put this line in crontab
+		#This will run it 10 minutes after midnight.
+		10 0 * * * [path to your backup_rotation.sh]
 
-8. If crontab not available, install `cronie` package first (CentOS)
-
-		yum install cronie
+8. If crontab is not available, consult your distributions packages. Ubuntu Server includes it by default.
 
 <div id='backup_type_configuration'>
 ##2. Backup Type Configuration
@@ -99,9 +97,9 @@ To customize the `backup type` you must alter the `LOCAL_BACKUP_OPTION` and `FTP
 
 The configuration value of `LOCAL_BACKUP_OPTION` and `FTP_BACKUP_OPTION` can be view on the table below
 
-![Backup type configuration](http://todiadiyatmo.com/wp-content/uploads//2014/11/Selection_105.png)
+![Backup type configuration](http://todiadiyatmo.com/wp-content/uploads/2014/11/Selection_105.png)
 
-For example, if you want to do daily on local and weekly on FTP you must fill both options with this value
+For example, if you want to do a daily backup on local and weekly on FTP you must fill both options like this:
 
 	LOCAL_BACKUP_OPTION=1
 		
@@ -110,8 +108,8 @@ For example, if you want to do daily on local and weekly on FTP you must fill bo
 <div id='ftp_backup_configuration'>
 ##3. FTP Backup Configuration
 
-1. Make sure that you fill the `FTP_BACKUP_OPTION` with correct value
-2. Fill the FTP configuration on the script 
+1. Make sure that you fill the `FTP_BACKUP_OPTION` with a correct value.
+2. Fill out FTP configuration in the script.
 
 		# -----------------
 		# FTP Configuration
@@ -136,4 +134,4 @@ For example, if you want to do daily on local and weekly on FTP you must fill bo
 <div id='contribute_and_contact'>
 ##4. Contribute and Contact
 
-Everybody is welcome to fork and contribute. If you need to pull something just post it on the message board. 
+Everybody is welcome to fork and contribute. If you need to pull something just post it on the message board.
