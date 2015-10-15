@@ -394,7 +394,7 @@ if [ ! $FTP_BACKUP_OPTION -eq 0 ]; then
   echo "mkdir $FTP_TARGET_DIR" >> $TMP_DIR/backup.incoming/ftp_command.tmp
   echo "cd $FTP_TARGET_DIR" >> $TMP_DIR/backup.incoming/ftp_command.tmp
   echo "binary" >> $TMP_DIR/backup.incoming/ftp_command.tmp
-  echo "put $TMP_DIR/backup.incoming/$backup_filename ." >> $TMP_DIR/backup.incoming/ftp_command.tmp
+  echo "put $TMP_DIR/backup.incoming/$backup_filename $FTP_TARGET_DIR" >> $TMP_DIR/backup.incoming/ftp_command.tmp
   for f in $(<$TMP_DIR/.ftp_cache/search_file.tmp)
   do
    echo "delete ${f/.\//}" >>  $TMP_DIR/backup.incoming/ftp_command.tmp
