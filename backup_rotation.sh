@@ -10,7 +10,7 @@
 # WITH SWITCHES.
 # --------------------------
 
-# -------------------
+# -------------------.ftp_cache
 # Backup Destination option, please read the README to find the possible value
 # --------------------
 
@@ -391,6 +391,7 @@ if [ ! $FTP_BACKUP_OPTION -eq 0 ]; then
   #remove previous backup
   mkdir -p $TMP_DIR/.ftp_cache
   touch $TMP_DIR/.ftp_cache/$backup_filename
+  touch $TMP_DIR/.ftp_cache/$backup_filename_sql
 
   echo "user $FTP_USER $FTP_PASSWORD" >> $TMP_DIR/backup.incoming/ftp_command.tmp
   echo "mkdir $FTP_TARGET_DIR" >> $TMP_DIR/backup.incoming/ftp_command.tmp
