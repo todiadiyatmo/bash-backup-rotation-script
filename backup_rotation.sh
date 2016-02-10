@@ -349,7 +349,7 @@ if [ ! $PERFORM_SQL_BACKUP -eq 0 ]; then
 
   # Destination file names
   backup_filename=$base_backup_filename'.sql.tar.xz'
-  
+
   backup_filename_sql=$backup_filename
 
   # Dump MySQL tables
@@ -397,13 +397,13 @@ if [ ! $FTP_BACKUP_OPTION -eq 0 ]; then
   echo "mkdir $FTP_TARGET_DIR" >> $TMP_DIR/backup.incoming/ftp_command.tmp
   echo "cd $FTP_TARGET_DIR" >> $TMP_DIR/backup.incoming/ftp_command.tmp
   echo "binary" >> $TMP_DIR/backup.incoming/ftp_command.tmp
-  echo "put $TMP_DIR/backup.incoming/$backup_filename $FTP_TARGET_DIR/$backup_filename" >> $TMP_DIR/backup.incoming/ftp_command.tmp
-  
+  echo "put $TMP_DIR/backup.incoming/$backup_filename $backup_filename" >> $TMP_DIR/backup.incoming/ftp_command.tmp
+
   if [ ! $PERFORM_SQL_BACKUP -eq 0 ]; then
-    echo "put $TMP_DIR/backup.incoming/$backup_filename_sql $FTP_TARGET_DIR/$backup_filename_sql" >> $TMP_DIR/backup.incoming/ftp_command.tmp
+    echo "put $TMP_DIR/backup.incoming/$backup_filename_sql $backup_filename_sql" >> $TMP_DIR/backup.incoming/ftp_command.tmp
   fi
 
-  
+
   for f in $(<$TMP_DIR/.ftp_cache/search_file.tmp)
   do
    echo "delete ${f/.\//}" >>  $TMP_DIR/backup.incoming/ftp_command.tmp
