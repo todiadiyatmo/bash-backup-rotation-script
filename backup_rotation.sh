@@ -353,7 +353,7 @@ if [ ! $PERFORM_SQL_BACKUP -eq 0 ]; then
   backup_filename_sql=$backup_filename
 
   # Dump MySQL tables
-  mysqldump -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_DATABASE $EXTRA_MYSQLDUMP_OPTIONS > $TMP_DIR/backup.incoming/mysql_dump.sql
+  mysqldump -h $DB_HOST -u -f $DB_USER -p$DB_PASSWORD $DB_DATABASE $EXTRA_MYSQLDUMP_OPTIONS > $TMP_DIR/backup.incoming/mysql_dump.sql
 
   echo "Compress sql backup.."
 
