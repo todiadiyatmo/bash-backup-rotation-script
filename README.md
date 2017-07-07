@@ -1,6 +1,6 @@
-###Bash Backup Rotation Script
+### Bash Backup Rotation Script
 
-###Description
+### Description
 This script allows you to create a backup rotation for your files and mysql database. The backup target can be local or remote (FTP). 
 
 The script has 3 backup types
@@ -21,14 +21,15 @@ The backup retention default day is :
 
 Please consider your storage size when chosing retention settings.
 
-###Table of Contents
+### Table of Contents
 1. [Usage Instruction](#usage_instruction)
 2. [Backup Type Configuration](#backup_type_configuration)
 3. [FTP Backup Configuration](#ftp_backup_configuration)
 4. [Contribute and Contact](#contribute_and_contact)
 
 <div id='usage_instruction'>
-##1. Usage Instruction
+
+## 1. Usage Instruction
 
 1. Download the `backup_rotation.sh` script into your NIX server.
 
@@ -91,7 +92,8 @@ Please consider your storage size when chosing retention settings.
 8. If crontab is not available, consult your distributions packages. Ubuntu Server includes it by default.
 
 <div id='backup_type_configuration'>
-##2. Backup Type Configuration
+
+## 2. Backup Type Configuration
 
 To customize the `backup type` you must alter the `LOCAL_BACKUP_OPTION` and `FTP_BACKUP_OPTION` in the configuration script.
 
@@ -106,7 +108,8 @@ For example, if you want to do a daily backup on local and weekly on FTP you mus
 	FTP_BACKUP_OPTION=2
 
 <div id='ftp_backup_configuration'>
-##3. FTP Backup Configuration
+
+## 3. FTP Backup Configuration
 
 1. Make sure that you fill the `FTP_BACKUP_OPTION` with a correct value.
 2. Fill out FTP configuration in the script.
@@ -132,6 +135,7 @@ For example, if you want to do a daily backup on local and weekly on FTP you mus
 		FTP_TARGET_DIR='/remote_path'
 
 <div id='contribute_and_contact'>
-##4. Contribute and Contact
+
+## 4. Contribute and Contact
 
 Everybody is welcome to fork and contribute. If you need to pull something just post it on the message board.
