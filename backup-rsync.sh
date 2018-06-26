@@ -1,0 +1,18 @@
+#!/bin/bash
+CURRENT_DAY=$((10#$(date +%j)))
+CURRENT_WEEK=$((10#$(date +%V)))
+NUMBER_OF_DAILY_BACKUP=2
+NUMBER_OF_WEEKLY_BACKUP=2
+
+if [ "$1" == "--weekly" ]; then
+	BUCKET=$(( CURRENT_DAY % NUMBER_OF_WEEKLY_BACKUP ))
+	BUCKET_TYPE="weekly"
+else
+	BUCKET=$(( CURRENT_WEEK % NUMBER_OF_DAILY_BACKUP ))
+	BUCKET_TYPE="daily"
+fi
+
+SOURCE=""
+DESTINATION=""
+
+rsync -avh $SOURCE $DESTINATION/$BUCKET_TYPE/$BUCKET
