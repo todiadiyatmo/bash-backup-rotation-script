@@ -412,7 +412,9 @@ if [ ! $FTP_BACKUP_OPTION -eq 0 ]; then
 
   ftp -n -v $FTP_HOST $FTP_PORT < $TMP_DIR/backup.incoming/ftp_command.tmp
 
-  echo "FTP Backup finish" | mail -s "$EMAIL_SUBJECT_TAG FTP backup finished !" $MAIL
+  if [ -n "$MAIL" ]; then
+    echo "FTP Backup finish" | mail -s "$EMAIL_SUBJECT_TAG FTP backup finished !" $MAIL
+  fi
 fi
 
 
@@ -421,7 +423,10 @@ if [ ! $LOCAL_BACKUP_OPTION -eq 0 ]; then
 
   if [ ! -d $TARGET_DIR ]; then
     echo "Target directory : '$TARGET_DIR/' doesn't exist.."
-    echo "Target directory : '$TARGET_DIR/' doesn't exist.." | mail -s "$EMAIL_SUBJECT_TAG Failed !" $MAIL
+	if [ -n "$MAIL" ]; then
+      echo "Target directory : '$TARGET_DIR/' doesn't exist.." | mail -s "$EMAIL_SUBJECT_TAG Failed !" $MAIL
+    fi
+    
     echo "Exiting..."
     exit
   fi
@@ -437,17 +442,25 @@ if [ -f $TARGET_DIR/$backup_filename ]; then
   RANDOM=$(( ( RANDOM % 100 )  + 1 ))
   # +Temp file to allow easy emailing of current list of backups.
   BACKUP_LIST=$TMP_DIR/backup.list.$RANDOM.txt
-  touch $BACKUP_LIST
-  echo "Sending mail"
-  echo "Local backup finished. Here's the current list of backups." > $BACKUP_LIST
-  echo " " >> $BACKUP_LIST
-  # +Sleep here to give the system a chance to catch up. If it goes to fast, the total size count could sometimes be incorrect.
-  sleep 2
-  ls -lah $TARGET_DIR >> $BACKUP_LIST
-  cat $BACKUP_LIST | mail -s "$EMAIL_SUBJECT_TAG Finished !" $MAIL
-  rm $TMP_DIR/backup.list.*
+  
+  if [ -n "$MAIL" ]; then
+    touch $BACKUP_LIST
+    echo "Sending mail"
+    echo "Local backup finished. Here's the current list of backups." > $BACKUP_LIST
+    echo " " >> $BACKUP_LIST
+    # +Sleep here to give the system a chance to catch up. If it goes to fast, the total size count could sometimes be incorrect.
+    sleep 2
+    ls -lah $TARGET_DIR >> $BACKUP_LIST
+  
+    cat $BACKUP_LIST | mail -s "$EMAIL_SUBJECT_TAG Finished !" $MAIL
+		
+    rm $TMP_DIR/backup.list.*
+  fi
+  
 else
-  echo "$TARGET_DIR/$backup_filename does not seem to exist. Something failed." | mail -s "$EMAIL_SUBJECT_TAG Finished, but failed." $MAIL
+  if [ -n "$MAIL" ]; then
+    echo "$TARGET_DIR/$backup_filename does not seem to exist. Something failed." | mail -s "$EMAIL_SUBJECT_TAG Finished, but failed." $MAIL
+  fi
 fi
 
 echo "Finish.."
