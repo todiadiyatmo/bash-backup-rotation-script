@@ -45,7 +45,7 @@ function local_remote
 
 function local_only
 {
-	mysqldump -u$USER -p$PASS $DBNAME  | gzip > $BACKUP_DIR/$DBNAME-sql-$DATE.sql.gz
+	mysqldump -u$USER -p$PASS $DBNAME  | gzip > $BACKUP_DIR/$DBNAME-mysql-$DATE.sql.gz
 	cd $BACKUP_DIR/
 	ls -t | grep $DBNAME | grep mysql | grep daily | sed -e 1,"$BACKUP_RETENTION_DAILY"d | xargs -d '\n' rm -R > /dev/null 2>&1
 	ls -t | grep $DBNAME | grep mysql | grep weekly | sed -e 1,"$BACKUP_RETENTION_WEEKLY"d | xargs -d '\n' rm -R > /dev/null 2>&1
@@ -54,7 +54,7 @@ function local_only
 
 function remote_only
 {
-	mysqldump -u$USER -p$PASS $DBNAME  | gzip > $BACKUP_DIR/$DBNAME-sql-$DATE.sql.gz
+	mysqldump -u$USER -p$PASS $DBNAME  | gzip > $BACKUP_DIR/$DBNAME-mysql-$DATE.sql.gz
 	rsync -avh --remove-source-files $BACKUP_DIR/ $DST_HOST:$REMOTE_DST_DIR
 	ssh -t -t $DST_HOST "cd $REMOTE_DST_DIR ; ls -t | grep $DBNAME | grep mysql | grep daily | sed -e 1,"$BACKUP_RETENTION_DAILY"d | xargs -d '\n' rm -R > /dev/null 2>&1"
 	ssh -t -t $DST_HOST "cd $REMOTE_DST_DIR ; ls -t | grep $DBNAME | grep mysql | grep weekly | sed -e 1,"$BACKUP_RETENTION_WEEKLY"d | xargs -d '\n' rm -R > /dev/null 2>&1"
