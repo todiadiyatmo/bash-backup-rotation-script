@@ -4,18 +4,18 @@
 # Remote delete use SSH Command
 
 ## Configuration
-SRC_CODE="/var/www/html"
-BACKUP_DIR="/home/user/backup"
-PROJECT_NAME="project"
-DST_HOST="user@host"
-REMOTE_DST_DIR="/root/backup"
-BACKUP_DAILY=true # if set to false backup will not work
-BACKUP_WEEKLY=true # if set to false backup will not work
-BACKUP_MONTHLY=true # if set to false backup will not work
-BACKUP_RETENTION_DAILY=3
-BACKUP_RETENTION_WEEKLY=3
-BACKUP_RETENTION_MONTHLY=3
-BACKUP_MODE='local-only' ## Available option ( 'local-only' | 'remote-only' | 'local-remote' )
+SRC_CODE="${BACKUP_ZIP_SRC:-/var/www/html}"
+BACKUP_DIR="${BACKUP_ZIP_DIR:-/home/user/backup}"
+PROJECT_NAME="${BACKUP_ZIP_PROJECT:-project}"
+DST_HOST="${BACKUP_ZIP_DST_HOST:-user@host}"
+REMOTE_DST_DIR="${BACKUP_ZIP_REMOTE_DIR:-/root/backup}"
+BACKUP_DAILY="${BACKUP_ZIP_DAILY:-true}" # if set to false backup will not work
+BACKUP_WEEKLY="${BACKUP_ZIP_WEEKLY:-true}" # if set to false backup will not work
+BACKUP_MONTHLY="${BACKUP_ZIP_MONTHLY:-true}" # if set to false backup will not work
+BACKUP_RETENTION_DAILY="${BACKUP_ZIP_RETENTION_DAILY:-3}"
+BACKUP_RETENTION_WEEKLY="${BACKUP_ZIP_RETENTION_WEEKLY:-3}"
+BACKUP_RETENTION_MONTHLY="${BACKUP_ZIP_RETENTION_MONTHLY:-3}"
+BACKUP_MODE="${BACKUP_ZIP_MODE:-local-only}" ## Available option ( 'local-only' | 'remote-only' | 'local-remote' )
 
 MONTH=`date +%d`
 DAYWEEK=`date +%u`
